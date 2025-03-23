@@ -7,7 +7,7 @@ export const loginUser = async (req, res, next) => {
 
     const { email, password } = req.body;
     if(!email||!password){
-        throw new Error("all feilds required")
+        throw new Error("all fields required")
     }
     try{
     const employee = await emp.findOne({ email }).select('+password');
@@ -21,7 +21,7 @@ export const loginUser = async (req, res, next) => {
         return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({id:employee._id,name:employee.name},process.env.JWT_KEY,{expiresIn:"24h"})
+    const token = jwt.sign({id:employee._id,name:employee.name,role:employee.role},process.env.JWT_KEY,{expiresIn:"48h"})
 
     res.status(200).json({employee_details:employee, token:token});
 }catch(e){

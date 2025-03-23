@@ -2,21 +2,21 @@ import { emp } from "../models/employee.model.js";
 import argon2 from "argon2";
 import crypto from "crypto";
 
-export const createemp=async(req,res)=>{
+export const createEmp=async(req,res)=>{
     try {
         const { name, email, phone,department,role,salary,isActive } = req.body;
         if(!name||!email||!phone||!department||!salary){
-            res.status(400).json({message:"all feilds are required"})
+            res.status(400).json({message:"all fields are required"})
         }
 
-        const existingEmployee = await Employee.findOne({ email });
+        const existingEmployee = await emp.findOne({ email });
         if (existingEmployee) return res.status(400).json({ message: "Email already exists!" });
 
         const password=crypto.randomBytes(6).toString();
         const hashedPassword = await argon2.hash(password);
         const profilePicture = req.file ? req.file.path : null;
 
-        const newEmployee = new Employee({
+        const newEmployee = {
             name,
             email,
             password: hashedPassword,
@@ -26,17 +26,17 @@ export const createemp=async(req,res)=>{
             salary:salary,
             profilePicture,
             isActive: isActive || true
-        });
+        };
 
         await emp.create(newEmployee);
         res.status(201).json({ message: "Employee created successfully!", employee: newEmployee });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "internal server error",e:error.message });
     }
 }
 
-export const getemp=async(req,res)=>{
+export const getEmp=async(req,res)=>{
     try {
         const page = +(req.query.page) 
         const limit = parseInt(req.query.limit) 
@@ -53,11 +53,11 @@ export const getemp=async(req,res)=>{
     }
 };
 
-export const getempbyid=async(req,res)=>{ 
+export const getEmpById=async(req,res)=>{ 
     try{
         const id=req.details.id;
-        const empdetail=await emp.findById(id);
-        req.status(200).json(empdetail)
+        const empDetail=await emp.findById(id);
+        req.status(200).json(empDetail)
     }catch(e){
         res.status(500).json({ message: "Internal server error" ,error:e.message});
     }
